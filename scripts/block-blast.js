@@ -1539,7 +1539,16 @@
         // Game over screen
         if (isGameOver) {
             ctx.fillStyle = COLORS2.BLACK_T2
-            ctx.fillRect(VIRTUAL_WIDTH / 2 - 320, VIRTUAL_HEIGHT / 2 - 72, 640, 144)
+            ctx.fillRect(VIRTUAL_WIDTH / 2 - 320, VIRTUAL_HEIGHT / 2 - 100, 640, 200)
+            
+            ctx.fillStyle = COLORS.RED
+            ctx.font = '72px system-ui, serif'
+            ctx.fillText(
+                'YOU DIED',
+                VIRTUAL_WIDTH / 2, 
+                VIRTUAL_HEIGHT / 2 - 72,
+            )
+            
             ctx.fillStyle = COLORS.WHITE
             ctx.font = '36px system-ui, sans-serif'
             ctx.fillText(
