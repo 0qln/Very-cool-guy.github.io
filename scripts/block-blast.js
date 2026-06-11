@@ -16,6 +16,7 @@
     const EXPLODE_BLOCK_RADIUS = 80
     const MITOSIS_BALL_COUNT = 1 // Number of balls spawned by a mitosis block
     const PIERCING_BLOCK_LIMIT = 3 // Number of blocks a piercing ball can break
+    const BLOCKING_PROJECTILE_LIMIT = 5 // Number of projectiles a blocking ball can break
     /* --- PARTICLE SETTINGS --- */
     const NUM_BLOCK_BREAK_PARTICLES_PER_AXIS = 3 // Total particles is this value squared
     const NUM_EXPLOSION_PARTICLES = 25
@@ -41,6 +42,9 @@
     const DIAMOND_DAMAGE = 20 // Amount of additional paddle height given by diamonds
     const PINK_RADIUS = 8
     const PINK_SPEED = 240
+    const BLOCKING_RADIUS_MAX = 30
+    const BLOCKING_RADIUS_MIN = 6
+    const BLOCKING_SPEED = 240
 
     /* --- COLORS --- */
     const COLORS = {
@@ -58,7 +62,9 @@
         ORANGE: '#ffcc66',
         DIAMOND: '#33ddff',
         PINK: '#ffb6c1',
-        PINK_T: '#ffb6c180'
+        PINK_T: '#ffb6c180',
+        PURPLE: '#aa66ff',
+        PURPLE_D: '#442288'
     }
     const COLORS2 = {
         BLACK_T: 'rgba(0,0,0,0.6)',
@@ -80,6 +86,7 @@
     const EXPLODE_BLOCK_WEIGHT = 1
     const DIAMOND_BLOCK_WEIGHT = 0.5 //the light blue blocks
     const PINK_BLOCK_WEIGHT = 0.1
+    const BLOCKING_BLOCK_WEIGHT = 0.05
     const TOTAL_SPECIAL_WEIGHT =
         PROJECTILE_BLOCK_WEIGHT +
         BOMB_BLOCK_WEIGHT +
@@ -87,7 +94,8 @@
         MITOSIS_BLOCK_WEIGHT +
         EXPLODE_BLOCK_WEIGHT + 
         DIAMOND_BLOCK_WEIGHT + 
-        PINK_BLOCK_WEIGHT
+        PINK_BLOCK_WEIGHT + 
+        BLOCKING_BLOCK_WEIGHT
 
     /* --- GAME STATE VARIABLES --- */
     const menuButton = { x: 500, y: 350, w: 200, h: 60, isHovering: false }
@@ -367,6 +375,11 @@
         const dy = distY - rect.h / 2
         return dx * dx + dy * dy <= circle.r * circle.r
     }
+    function circleCircleColliding(circle1, circle2){
+        const dist = Math.sqrt(Math.abs(Math.pow(circle1.x - circle2.x, 2) + Math.pow(circle1.y - circle2.y, 2)))
+        const colDist = circle1.r + circle2.r
+        return dist <= colDist
+    }
 
     // Helper to draw a rounded rectangle
     function drawRoundRect(x, y, w, h, r, fillStyle) {
@@ -380,6 +393,24 @@
         ctx.arcTo(x, y, x + w, y, radius)
         ctx.closePath()
         ctx.fill()
+    }
+    //helper to draw regular polygon
+    function drawRegularPoly(x, y, points, r, fillStyle, angle = 0){
+        ctx.fillStyle = fillStyle
+        ctx.beginPath();
+        if(points < 3){ //if points are too few, give up and draw a circle
+            ctx.arc(x, y, r, 0, Math.PI * 2)
+            ctx.fill()
+            return false
+        }
+        let i = 0
+        ctx.moveTo(r * Math.cos(angle) + x, r * Math.sin(angle) + y)
+        for(i = 1; i < points; i++){
+            angle+= 2 * Math.PI / points
+            ctx.lineTo(r * Math.cos(angle) + x, r * Math.sin(angle) + y)
+        }
+        ctx.fill()
+        return true
     }
 
     // BLOCK DESTRUCTION PARTICLE
@@ -494,7 +525,18 @@
                 PINK_BLOCK_WEIGHT
             ){
                 this.type = 'pink'
-            } else {
+            } else if (
+                rand <
+                PROJECTILE_BLOCK_WEIGHT +
+                BOMB_BLOCK_WEIGHT +
+                PIERCING_BLOCK_WEIGHT +
+                MITOSIS_BLOCK_WEIGHT + 
+                DIAMOND_BLOCK_WEIGHT + 
+                PINK_BLOCK_WEIGHT + 
+                BLOCKING_BLOCK_WEIGHT
+            ){
+                this.type = 'blocking'
+            }else {
                 this.type = 'explode'
             }
         }
@@ -521,6 +563,9 @@
                     break
                 case 'pink':
                     ctx.fillStyle = COLORS.PINK
+                    break
+                case 'blocking':
+                    ctx.fillStyle = COLORS.PURPLE
                     break
                 default:
                     ctx.fillStyle = COLORS.GRAY
@@ -587,6 +632,9 @@
                             break
                         case 'pink':
                             color = COLORS.PINK
+                            break
+                        case 'blocking':
+                            color = COLORS.PURPLE
                             break
                     }
                     const particle = new BlockBreakParticle(
@@ -747,11 +795,25 @@
                     pink.vy = PINK_SPEED * Math.sin(angle)
                     balls.push(pink)
                     break
+                case 'blocking':
+                    // Spawn a new blocking ball
+                    const blockingAngle = generateAngle((5 * Math.PI) / 8, -1)
+                    const blockingBall = new Ball(
+                        this.x + this.w / 2,
+                        this.y + this.h / 2,
+                        BLOCKING_RADIUS_MIN,
+                        'blocking',
+                        true,
+                    )
+                    blockingBall.vx = BLOCKING_SPEED * Math.cos(blockingAngle)
+                    blockingBall.vy = BLOCKING_SPEED * Math.sin(blockingAngle)
+                    balls.push(blockingBall)
+                    break
             }
             // currentScore++
         }
 
-        this.checkForCollisions = function (ball) {
+        this.checkForCollisions = function (ball) { //the block-ball collision function
             // Check for collision
             if (!rectCircleColliding(this, ball)) {
                 return false
@@ -768,18 +830,7 @@
                 this.activateEffect(ball)
                 
                 // add flavor text for score increase
-                let color = COLORS.GRAY
-                switch (ball.type) {
-                    case 'bomb':
-                        color = COLORS.BLUE_L
-                        break
-                    case 'piercing':
-                        color = COLORS.GREEN
-                        break
-                    default:
-                        color = COLORS.WHITE
-                        break
-                }// projectiles, diamonds, and pinks shouldn't be breaking blocks anyways
+                let color = COLORS.GREEN
                 score(1, color)
                 
                 return true
@@ -895,14 +946,23 @@
         this.type = type || 'normal'
         this.isDisabled = isDisabled // Used to prevent immediate interaction after spawning
         this.blocksHitCount = Infinity
+        this.ballsHitCount = Infinity
         this.isDestroyed = false // Corresponds to `dead` in original
         this.vx = 0
         this.vy = 0
         this.spawnTime = performance.now() + Math.random() * 1000 // For bomb pulse timing
 
-        this.update = function (dt) {
+        this.update = function (dt) { //the ball updates function
             this.x += this.vx * dt
             this.y += this.vy * dt
+
+            if(this.type === 'blocking'){
+                if(isDisabled){
+                    this.r = BLOCKING_RADIUS_MIN
+                } else {
+                    this.r = BLOCKING_RADIUS_MAX + (BLOCKING_RADIUS_MIN - BLOCKING_RADIUS_MAX) * Math.max(0, BLOCKING_PROJECTILE_LIMIT - this.ballsHitCount)
+                }
+            }
 
             // Wall collisions (top and bottom)
             if (this.y - this.r <= 0) {
@@ -940,7 +1000,7 @@
             }
         }
 
-        this.display = function () {
+        this.display = function () {//the ball display function
             ctx.beginPath()
             switch (this.type) {
                 case 'projectile':
@@ -981,24 +1041,26 @@
                     ctx.fill()
                     break
                 case 'diamond':
-                    ctx.fillStyle = COLORS.DIAMOND
-                    let points = [[null], [null], [null]]
                     let turn = this.vx * (performance.now() - this.spawnTime) / 24000
-                    let angle = (0) * 2 * Math.PI / 3 + turn
                     
-                    ctx.beginPath();
-                    ctx.moveTo(this.r * Math.cos(angle) + this.x, this.r * Math.sin(angle) + this.y)
-                    angle = (1) * 2 * Math.PI / 3 + turn
-                    ctx.lineTo(this.r * Math.cos(angle) + this.x, this.r * Math.sin(angle) + this.y)
-                    angle = (2) * 2 * Math.PI / 3 + turn
-                    ctx.lineTo(this.r * Math.cos(angle) + this.x, this.r * Math.sin(angle) + this.y)
+                    drawRegularPoly(this.x, this.y, 3, this.r, COLORS.DIAMOND, turn)
                     
-                    ctx.fill()
                     break
                 case 'pink':
                     ctx.fillStyle = COLORS.PINK
                     ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2)
                     ctx.fill()
+                    break
+                case 'blocking':
+                    let turn = this.vx * (performance.now() - this.spawnTime) / 24000
+                    
+                    if(this.isDisabled){
+                        ctx.fillStyle = colors.PURPLE_D
+                    }else{
+                        let turn = this.vx * (performance.now() - this.spawnTime) / 24000
+                        drawRegularPoly(this.x, this.y, 1 + Math.max(0, BLOCKING_PROJECTILE_LIMIT - this.ballsHitCount), this.r, COLORS.PURPLE, turn)
+                    }
+                    
                     break
                 default: // 'normal' ball
                     ctx.fillStyle = COLORS.WHITE
@@ -1006,6 +1068,25 @@
                     ctx.fill()
                     break
             }
+        }
+
+        this.checkForCollisions(ball){// the ball-ball collision function
+            if(this.isDisabled || !circleCircleColliding(this, ball)) {
+                return false
+            }
+            if(!(this.type === 'blocking' && ball.type === 'projectile'))
+                return false
+            } //this entire function is only meant for blocking-projectile interactions, but may need more in the future
+
+            //assume now I'm a blocking ball, and the other is a projectile
+            this.ballsHitCount++
+            ball.isDestroyed = true //destroy the projectile
+
+            if(this.ballsHitCount >= BLOCKING_PROJECTILE_LIMIT){
+                this.isDisabled = true
+            }
+            
+            return true
         }
     }
 
@@ -1130,6 +1211,7 @@
                     ball.x = diamondPaddle.x + diamondPaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
                     ball.isDisabled = false
                     ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
+                    ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
     
                     if (ball.type === 'projectile') {
                         // Projectile hits diamondPaddle: diamondPaddle damage 
@@ -1180,6 +1262,7 @@
                 ball.x = paddle.x + paddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
                 ball.isDisabled = false
                 ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
+                ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
 
                 if (ball.type === 'projectile') {
                     // Projectile hits paddle: paddle damage and self-destruction
@@ -1231,6 +1314,8 @@
                         ball.x = pinkPaddle.x + pinkPaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
                         ball.isDisabled = false
                         ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
+                        ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
+                        
                         if (ball.type === 'pink') {
                             // Pink hits paddle: reset pink paddle
                             pinkPaddle.h += Math.max(paddle.h, diamondPaddle.h)
@@ -1248,6 +1333,15 @@
                     continue
                 }
                 if (blocks[j].checkForCollisions(ball)) {
+                    break // Only check one collision per ball per frame for simplicity
+                }
+            }
+            // Ball-ball collision
+            for (let j = 0; j < balls.length; j++) {
+                if (balls[j].isDestroyed) {
+                    continue
+                }
+                if (balls[j].checkForCollisions(ball)) {
                     break // Only check one collision per ball per frame for simplicity
                 }
             }
