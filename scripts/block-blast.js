@@ -1242,8 +1242,10 @@
                         continue // Skip block collision check for this destroyed diamond
                     }
                     if (ball.type === 'pink') {
-                        // Pink hits paddle: reset pink paddle
-                        pinkPaddle.h += diamondPaddle.h
+                        // Pink hits paddle: make pink bigger
+                        //if diamond paddle is bigger than pink, make size of diamond, then add half of the extra, otherwise just add half of diamond paddle
+                        pinkPaddle.h = (pinkPaddle.h <= diamondPaddle.h) ? diamodnPaddle.h + pinkPaddle.h / 2 : pinkPaddle.h + diamondPaddle.h/2
+                        // pinkPaddle.h += diamondPaddle.h
                         balls.splice(i, 1)
                         score(5, COLORS.PINK)
                         continue // Skip block collision check for this destroyed diamond
@@ -1292,8 +1294,10 @@
                     continue // Skip block collision check for this destroyed diamond
                 }
                 if (ball.type === 'pink') {
-                    // Pink hits paddle: reset pink paddle
-                    pinkPaddle.h += paddle.h
+                    // Pink hits paddle: make pink bigger
+                    //if paddle is bigger than pink, make size of paddle, then add half of the extra, otherwise just add half of paddle
+                    pinkPaddle.h = (pinkPaddle.h <= paddle.h) ? paddle.h + pinkPaddle.h / 2 : pinkPaddle.h + paddle.h/2
+                    // pinkPaddle.h += paddle.h
                     balls.splice(i, 1)
                     score(5, COLORS.PINK)
                     continue // Skip block collision check for this destroyed diamond
@@ -1317,8 +1321,11 @@
                         ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
                         
                         if (ball.type === 'pink') {
-                            // Pink hits paddle: reset pink paddle
-                            pinkPaddle.h += Math.max(paddle.h, diamondPaddle.h)
+                            let greaterPaddle = Math.max(paddle.h, diamondPaddle.h)
+                            // Pink hits paddle: make pink bigger
+                            //if paddle is bigger than pink, make size of paddle, then add half of the extra, otherwise just add half of paddle
+                            pinkPaddle.h = (pinkPaddle.h <= greaterPaddle) ? greaterPaddle + pinkPaddle.h / 2 : pinkPaddle.h + greaterPaddle/2
+                            // pinkPaddle.h += Math.max(paddle.h, diamondPaddle.h)
                             balls.splice(i, 1)
                             score(5, COLORS.PINK)
                             continue // Skip block collision check for this destroyed diamond
