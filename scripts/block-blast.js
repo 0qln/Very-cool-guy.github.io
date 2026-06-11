@@ -1071,8 +1071,8 @@
 
         // Paddle movement
         paddle.dy = 0
-        if (keys['w']) paddle.dy = -PADDLE_SPEED
-        if (keys['s']) paddle.dy = PADDLE_SPEED
+        if (keys['w'] || keys[38]) paddle.dy = -PADDLE_SPEED //38 is up key
+        if (keys['s'] || keys[40]) paddle.dy = PADDLE_SPEED //40 is down key
 
         paddle.y += paddle.dy * dt
         // Clamp paddle position within vertical bounds
@@ -1479,7 +1479,7 @@
         ctx.font = '20px system-ui, sans-serif'
         ctx.textAlign = 'center'
         ctx.fillStyle = COLORS.GRAY_L
-        ctx.fillText('To Move Press: W (Up) and S (Down)', VIRTUAL_WIDTH / 2, 170)
+        ctx.fillText('To Move Press: W (Up) and S (Down) or arrow keys', VIRTUAL_WIDTH / 2, 170)
         ctx.fillText(`Bounce the ball to break blocks!`, VIRTUAL_WIDTH / 2, 195)
         ctx.fillText(
             `Break as many blocks as possible to maximize score!`,
