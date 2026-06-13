@@ -1601,6 +1601,8 @@
             VIRTUAL_WIDTH / 2,
             275,
         )
+        ctx.textAlign = 'left'
+        ctx.fillText('Last updated: June 13, 2026', 20, VIRTUAL_HEIGHT - 30)
 
 
         // Button
