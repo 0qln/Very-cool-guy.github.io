@@ -1002,7 +1002,7 @@
 
         this.display = function () {//the ball display function
             ctx.beginPath()
-            let turn = this.vx * (performance.now() - this.spawnTime) / 24000
+            
             switch (this.type) {
                 case 'projectile':
                     ctx.fillStyle = COLORS.RED
@@ -1042,7 +1042,7 @@
                     ctx.fill()
                     break
                 case 'diamond':
-                    // let turn = this.vx * (performance.now() - this.spawnTime) / 24000
+                    let turn = this.vx * (performance.now() - this.spawnTime) / 24000
                     
                     drawRegularPoly(this.x, this.y, 3, this.r, COLORS.DIAMOND, turn)
                     
@@ -1053,7 +1053,7 @@
                     ctx.fill()
                     break
                 case 'blocking':
-                    // let turn = this.vx * (performance.now() - this.spawnTime) / 24000
+                    let turn = this.vx * (performance.now() - this.spawnTime) / 24000
                     
                     if(this.isDisabled){
                         ctx.fillStyle = colors.PURPLE_D
@@ -1070,11 +1070,11 @@
             }
         }
 
-        this.checkForCollisions(ball){// the ball-ball collision function
+        this.checkForCollisions = function(ball){// the ball-ball collision function
             if(this.isDisabled || !circleCircleColliding(this, ball)) {
                 return false
             }
-            if(!(this.type === 'blocking' && ball.type === 'projectile'))
+            if(!(this.type === 'blocking' && ball.type === 'projectile')) {
                 return false
             } //this entire function is only meant for blocking-projectile interactions, but may need more in the future
 
