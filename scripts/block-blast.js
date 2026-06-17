@@ -1056,7 +1056,7 @@
                     turn = this.vx * (performance.now() - this.spawnTime) / 24000
                     
                     if(this.isDisabled){
-                        ctx.fillStyle = colors.PURPLE_D
+                        ctx.fillStyle = COLORS.PURPLE_D
                     }else{
                         drawRegularPoly(this.x, this.y, 1 + Math.max(0, BLOCKING_PROJECTILE_LIMIT - this.ballsHitCount), this.r, COLORS.PURPLE, turn)
                     }
