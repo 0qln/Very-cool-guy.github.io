@@ -1056,7 +1056,7 @@
                     turn = this.vx * (performance.now() - this.spawnTime) / 24000
                     
                     if(this.isDisabled){
-                        ctx.fillStyle = colors.PURPLE_D
+                        ctx.fillStyle = COLORS.PURPLE_D
                     }else{
                         drawRegularPoly(this.x, this.y, 1 + Math.max(0, BLOCKING_PROJECTILE_LIMIT - this.ballsHitCount), this.r, COLORS.PURPLE, turn)
                     }
@@ -1244,7 +1244,7 @@
                     if (ball.type === 'pink') {
                         // Pink hits paddle: make pink bigger
                         //if diamond paddle is bigger than pink, make size of diamond, then add half of the extra, otherwise just add half of diamond paddle
-                        pinkPaddle.h = (pinkPaddle.h <= diamondPaddle.h) ? diamodnPaddle.h + pinkPaddle.h / 2 : pinkPaddle.h + diamondPaddle.h/2
+                        pinkPaddle.h = (pinkPaddle.h <= diamondPaddle.h) ? diamondPaddle.h + pinkPaddle.h / 2 : pinkPaddle.h + diamondPaddle.h/2
                         // pinkPaddle.h += diamondPaddle.h
                         balls.splice(i, 1)
                         score(5, COLORS.PINK)
@@ -1602,7 +1602,7 @@
             275,
         )
         ctx.textAlign = 'left'
-        ctx.fillText('Last updated: June 13, 2026', 20, VIRTUAL_HEIGHT - 30)
+        ctx.fillText('Last updated: June 16, 2026', 20, VIRTUAL_HEIGHT - 30)
 
 
         // Button
