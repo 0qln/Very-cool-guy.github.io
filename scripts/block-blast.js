@@ -1002,7 +1002,7 @@
 
         this.display = function () {//the ball display function
             ctx.beginPath()
-            
+            let turn = 0
             switch (this.type) {
                 case 'projectile':
                     ctx.fillStyle = COLORS.RED
@@ -1042,7 +1042,7 @@
                     ctx.fill()
                     break
                 case 'diamond':
-                    let turn = this.vx * (performance.now() - this.spawnTime) / 24000
+                    turn = this.vx * (performance.now() - this.spawnTime) / 24000
                     
                     drawRegularPoly(this.x, this.y, 3, this.r, COLORS.DIAMOND, turn)
                     
@@ -1053,7 +1053,7 @@
                     ctx.fill()
                     break
                 case 'blocking':
-                    let turn = this.vx * (performance.now() - this.spawnTime) / 24000
+                    turn = this.vx * (performance.now() - this.spawnTime) / 24000
                     
                     if(this.isDisabled){
                         ctx.fillStyle = colors.PURPLE_D
