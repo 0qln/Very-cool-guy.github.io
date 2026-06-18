@@ -42,9 +42,9 @@
     const DIAMOND_DAMAGE = 20 // Amount of additional paddle height given by diamonds
     const PINK_RADIUS = 8
     const PINK_SPEED = 240
-    const BLOCKING_RADIUS_MAX = 30
-    const BLOCKING_RADIUS_MIN = 6
-    const BLOCKING_SPEED = 240
+    const BLOCKING_RADIUS_MAX = 32
+    const BLOCKING_RADIUS_MIN = 8
+    const BLOCKING_SPEED = 120
 
     /* --- COLORS --- */
     const COLORS = {
@@ -63,8 +63,8 @@
         DIAMOND: '#33ddff',
         PINK: '#ffb6c1',
         PINK_T: '#ffb6c180',
-        PURPLE: '#aa66ff',
-        PURPLE_D: '#442288'
+        PURPLE: '#cc66ff',
+        PURPLE_D: '#552288'
     }
     const COLORS2 = {
         BLACK_T: 'rgba(0,0,0,0.6)',
@@ -85,8 +85,8 @@
     const MITOSIS_BLOCK_WEIGHT = 1
     const EXPLODE_BLOCK_WEIGHT = 1
     const DIAMOND_BLOCK_WEIGHT = 0.5 //the light blue blocks
-    const PINK_BLOCK_WEIGHT = 0.1
-    const BLOCKING_BLOCK_WEIGHT = 0.05
+    const PINK_BLOCK_WEIGHT = 0.08
+    const BLOCKING_BLOCK_WEIGHT = 0.04
     const TOTAL_SPECIAL_WEIGHT =
         PROJECTILE_BLOCK_WEIGHT +
         BOMB_BLOCK_WEIGHT +
@@ -957,7 +957,7 @@
             this.y += this.vy * dt
 
             if(this.type === 'blocking'){
-                if(isDisabled){
+                if(this.isDisabled){
                     this.r = BLOCKING_RADIUS_MIN
                 } else {
                     this.r = BLOCKING_RADIUS_MAX + (BLOCKING_RADIUS_MIN - BLOCKING_RADIUS_MAX) * Math.max(0, BLOCKING_PROJECTILE_LIMIT - this.ballsHitCount)
@@ -1057,6 +1057,8 @@
                     
                     if(this.isDisabled){
                         ctx.fillStyle = COLORS.PURPLE_D
+                        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2)
+                        ctx.fill()
                     }else{
                         drawRegularPoly(this.x, this.y, 1 + Math.max(0, BLOCKING_PROJECTILE_LIMIT - this.ballsHitCount), this.r, COLORS.PURPLE, turn)
                     }
@@ -1549,11 +1551,11 @@
             ctx.fillRect(VIRTUAL_WIDTH / 2 - 320, VIRTUAL_HEIGHT / 2 - 100, 640, 200)
             
             ctx.fillStyle = COLORS.RED
-            ctx.font = '72px system-ui, serif'
+            ctx.font = '72px serif'
             ctx.fillText(
                 'YOU DIED',
                 VIRTUAL_WIDTH / 2, 
-                VIRTUAL_HEIGHT / 2 - 72,
+                VIRTUAL_HEIGHT / 2 - 42,
             )
             
             ctx.fillStyle = COLORS.WHITE
@@ -1561,13 +1563,13 @@
             ctx.fillText(
                 `You got a score of ${currentScore}!`,
                 VIRTUAL_WIDTH / 2,
-                VIRTUAL_HEIGHT / 2 - 6,
+                VIRTUAL_HEIGHT / 2 + 9,
             )
             ctx.font = '18px system-ui, sans-serif'
             ctx.fillText(
                 'Click Restart to play again.',
                 VIRTUAL_WIDTH / 2,
-                VIRTUAL_HEIGHT / 2 + 30,
+                VIRTUAL_HEIGHT / 2 + 45,
             )
         }
 
@@ -1602,7 +1604,7 @@
             275,
         )
         ctx.textAlign = 'left'
-        ctx.fillText('Last updated: June 16, 2026', 20, VIRTUAL_HEIGHT - 30)
+        ctx.fillText('Last updated: June 17, 2026', 20, VIRTUAL_HEIGHT - 30)
 
 
         // Button
