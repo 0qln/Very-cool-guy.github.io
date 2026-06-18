@@ -42,7 +42,7 @@
     const DIAMOND_DAMAGE = 20 // Amount of additional paddle height given by diamonds
     const PINK_RADIUS = 8
     const PINK_SPEED = 240
-    const BLOCKING_RADIUS_MAX = 32
+    const BLOCKING_RADIUS_MAX = 24
     const BLOCKING_RADIUS_MIN = 8
     const BLOCKING_SPEED = 240
 
