@@ -1551,11 +1551,11 @@
             ctx.fillRect(VIRTUAL_WIDTH / 2 - 320, VIRTUAL_HEIGHT / 2 - 100, 640, 200)
             
             ctx.fillStyle = COLORS.RED
-            ctx.font = '72px system-ui, serif'
+            ctx.font = '72px serif'
             ctx.fillText(
                 'YOU DIED',
                 VIRTUAL_WIDTH / 2, 
-                VIRTUAL_HEIGHT / 2 - 72,
+                VIRTUAL_HEIGHT / 2 - 42,
             )
             
             ctx.fillStyle = COLORS.WHITE
@@ -1563,13 +1563,13 @@
             ctx.fillText(
                 `You got a score of ${currentScore}!`,
                 VIRTUAL_WIDTH / 2,
-                VIRTUAL_HEIGHT / 2 - 6,
+                VIRTUAL_HEIGHT / 2 + 9,
             )
             ctx.font = '18px system-ui, sans-serif'
             ctx.fillText(
                 'Click Restart to play again.',
                 VIRTUAL_WIDTH / 2,
-                VIRTUAL_HEIGHT / 2 + 30,
+                VIRTUAL_HEIGHT / 2 + 45,
             )
         }
 
