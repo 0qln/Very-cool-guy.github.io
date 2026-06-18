@@ -389,10 +389,12 @@
         // Set velocity and reset state
         ball.vx = Math.cos(bounceAngle) * ball.speed
         ball.vy = Math.sin(bounceAngle) * ball.speed
-        ball.x = thePaddle.x + thePaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
         ball.isDisabled = false
         ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
         ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
+        if(ball.type === 'blocking')
+            ball.r = BLOCKING_RADIUS_MAX
+        ball.x = thePaddle.x + thePaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
     }
 
     // Helper to draw a rounded rectangle
