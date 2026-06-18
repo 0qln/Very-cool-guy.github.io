@@ -381,6 +381,20 @@
         return dist <= colDist
     }
 
+    function hitBall(thePaddle, ball){
+        // Calculate bounce angle based on relative hit position on the paddle
+        const relativeY = (ball.y - (thePaddle.y + thePaddle.h / 2)) / (thePaddle.h / 2)
+        const bounceAngle = relativeY * (Math.PI / 3) // Max angle of +/- 60 degrees
+
+        // Set velocity and reset state
+        ball.vx = Math.cos(bounceAngle) * BALL_SPEED
+        ball.vy = Math.sin(bounceAngle) * BALL_SPEED
+        ball.x = thePaddle.x + thePaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
+        ball.isDisabled = false
+        ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
+        ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
+    }
+
     // Helper to draw a rounded rectangle
     function drawRoundRect(x, y, w, h, r, fillStyle) {
         ctx.fillStyle = fillStyle
@@ -1203,17 +1217,7 @@
             if(diamondPaddle.bonus > 0) {
                 // Diamond Paddle collision
                 if (rectCircleColliding(diamondPaddle, ball)) {
-                    // Calculate bounce angle based on relative hit position on the diamondPaddle
-                    const relativeY = (ball.y - (diamondPaddle.y + diamondPaddle.h / 2)) / (diamondPaddle.h / 2)
-                    const bounceAngle = relativeY * (Math.PI / 3) // Max angle of +/- 60 degrees
-    
-                    // Set velocity and reset state
-                    ball.vx = Math.cos(bounceAngle) * BALL_SPEED
-                    ball.vy = Math.sin(bounceAngle) * BALL_SPEED
-                    ball.x = diamondPaddle.x + diamondPaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
-                    ball.isDisabled = false
-                    ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
-                    ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
+                    hitBall(diamondPaddle, ball)
     
                     if (ball.type === 'projectile') {
                         // Projectile hits diamondPaddle: diamondPaddle damage 
@@ -1256,17 +1260,7 @@
             }
             // Paddle collision
             else if (rectCircleColliding(paddle, ball)) {
-                // Calculate bounce angle based on relative hit position on the paddle
-                const relativeY = (ball.y - (paddle.y + paddle.h / 2)) / (paddle.h / 2)
-                const bounceAngle = relativeY * (Math.PI / 3) // Max angle of +/- 60 degrees
-
-                // Set velocity and reset state
-                ball.vx = Math.cos(bounceAngle) * BALL_SPEED
-                ball.vy = Math.sin(bounceAngle) * BALL_SPEED
-                ball.x = paddle.x + paddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
-                ball.isDisabled = false
-                ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
-                ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
+                hitBall(paddle, ball)
 
                 if (ball.type === 'projectile') {
                     // Projectile hits paddle: paddle damage and self-destruction
@@ -1310,17 +1304,7 @@
                 if (rectCircleColliding(pinkPaddle, ball)) {
                     //pink paddle ignores certain balls
                     if(ball.type !== 'projectile') {
-                        // Calculate bounce angle based on relative hit position on the pink paddle
-                        const relativeY = (ball.y - (pinkPaddle.y + pinkPaddle.h / 2)) / (pinkPaddle.h / 2)
-                        const bounceAngle = relativeY * (Math.PI / 3) // Max angle of +/- 60 degrees
-        
-                        // Set velocity and reset state
-                        ball.vx = Math.cos(bounceAngle) * BALL_SPEED
-                        ball.vy = Math.sin(bounceAngle) * BALL_SPEED
-                        ball.x = pinkPaddle.x + pinkPaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
-                        ball.isDisabled = false
-                        ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
-                        ball.ballsHitCount = ball.type === 'blocking' ? 0 : Infinity // Reset ball hit count
+                        hitBall(pinkPaddle, ball)
                         
                         if (ball.type === 'pink') {
                             let greaterPaddle = Math.max(paddle.h, diamondPaddle.h)
