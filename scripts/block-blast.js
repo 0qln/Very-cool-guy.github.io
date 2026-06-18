@@ -44,7 +44,7 @@
     const PINK_SPEED = 240
     const BLOCKING_RADIUS_MAX = 32
     const BLOCKING_RADIUS_MIN = 8
-    const BLOCKING_SPEED = 120
+    const BLOCKING_SPEED = 240
 
     /* --- COLORS --- */
     const COLORS = {
@@ -387,8 +387,8 @@
         const bounceAngle = relativeY * (Math.PI / 3) // Max angle of +/- 60 degrees
 
         // Set velocity and reset state
-        ball.vx = Math.cos(bounceAngle) * BALL_SPEED
-        ball.vy = Math.sin(bounceAngle) * BALL_SPEED
+        ball.vx = Math.cos(bounceAngle) * ball.speed
+        ball.vy = Math.sin(bounceAngle) * ball.speed
         ball.x = thePaddle.x + thePaddle.w + ball.r + 0.1 // Reposition ball to prevent sticking
         ball.isDisabled = false
         ball.blocksHitCount = ball.type === 'piercing' ? 0 : Infinity // Reset block hit count
@@ -704,6 +704,7 @@
                         this.y + this.h / 2,
                         BALL_RADIUS,
                         'piercing',
+                        BALL_SPEED,
                         true,
                     )
                     piercingBall.vx = BALL_SPEED * Math.cos(piercingAngle)
@@ -790,6 +791,7 @@
                             this.y + this.h / 2,
                             DIAMOND_RADIUS,
                             'diamond',
+                            DIAMOND_SPEED,
                         )
                         diamond.vx = DIAMOND_SPEED * Math.cos(angle)
                         diamond.vy = DIAMOND_SPEED * Math.sin(angle)
@@ -818,6 +820,7 @@
                         BLOCKING_RADIUS_MIN,
                         'blocking',
                         true,
+                        BLOCKING_SPEED
                     )
                     blockingBall.vx = BLOCKING_SPEED * Math.cos(blockingAngle)
                     blockingBall.vy = BLOCKING_SPEED * Math.sin(blockingAngle)
@@ -953,7 +956,7 @@
     generateBlocks()
 
     // BALL OBJECT
-    function Ball(x, y, radius, type, isDisabled = false) {
+    function Ball(x, y, radius, type, speed = BALL_SPEED, isDisabled = false) {
         this.x = x
         this.y = y
         this.r = radius
@@ -964,6 +967,7 @@
         this.isDestroyed = false // Corresponds to `dead` in original
         this.vx = 0
         this.vy = 0
+        this.speed = speed
         this.spawnTime = performance.now() + Math.random() * 1000 // For bomb pulse timing
 
         this.update = function (dt) { //the ball updates function
