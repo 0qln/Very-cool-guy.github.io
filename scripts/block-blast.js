@@ -97,8 +97,59 @@
         PINK_BLOCK_WEIGHT + 
         BLOCKING_BLOCK_WEIGHT
 
+    /* --- BUTTON --- */
+    function button(x, y, w, h, text, operation){
+        this.x = x
+        this.y = y
+        this.w = w
+        this.h = h
+        this.text = text
+        this.operation = operation
+        this.isHovering = false
+
+        this.update() = {
+            // Check if the mouse is inside the button's boundaries
+            this.isHovering =
+                this.x >= this.x &&
+                this.x <= this.x + this.w &&
+                this.y >= this.y &&
+                this.y <= this.y + this.h
+        
+            // Start the game if the button is clicked
+            if (this.isHovering && isMouseClicked) {
+                this.operation()
+            }
+        }
+        this.display() = {
+            // Button
+            const btnColor = this.isHovering ? COLORS.WHITE : COLORS.WHITE_D
+            drawRoundRect(
+                this.x,
+                this.y,
+                this.w,
+                this.h,
+                10,
+                btnColor,
+            )
+
+            // Button text
+            ctx.fillStyle = COLORS.BLACK
+            ctx.font = '28px system-ui, sans-serif'
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'middle'
+            ctx.fillText(
+                this.text,
+                this.x + this.w / 2,
+                this.y + this.h / 2,
+            )
+        }
+    }
+
     /* --- GAME STATE VARIABLES --- */
-    const menuButton = { x: 500, y: 350, w: 200, h: 60, isHovering: false }
+    // const menuButton = { x: 500, y: 350, w: 200, h: 60, isHovering: false }
+    let menuButton = new button(500, 350, 200, 60, 'Start Game', reset)
+    let resumeButton = new button(500 - 110, 350, 200, 60, 'Cancel', resume)
+    let resetButton = new button(500 + 110, 350, 200, 60, 'Restart', reset)
     let currentScene = GAME_SCENE_NAME
     let livesLostCount = 0
     let currentScore = 0
@@ -132,6 +183,13 @@
         diamondPaddle.bonus = INITIAL_DIAMOND_BONUS
         projectileTimer = 0
     }
+    function reset(){
+        startGame()
+        currentScene = 'game'
+    }
+    function resume(){
+        currentScene = 'game'
+    }
 
     function die() { //Clear all balls and reset paddle and serving ball, but maintain blocks
         paddle.y = (VIRTUAL_HEIGHT - PADDLE_HEIGHT_INITIAL) / 2
@@ -158,6 +216,12 @@
             ? 'Resume'
             : 'Pause'
         lastTime = performance.now()
+    }
+
+    function hotkey(key, effect){
+        if(releasedKeys[key]){
+            effect()
+        }
     }
 
     // Function to generate angles that are not too horizontal
@@ -251,10 +315,12 @@
     })
 
     const keys = {}
+    const releasedKeys = {}
     window.addEventListener('keydown', (e) => {
         keys[e.key.toLowerCase()] = true // Use toLowerCase for consistent key checking
     })
     window.addEventListener('keyup', (e) => {
+        releasedKeys[e.key.toLowerCase()] = true //just gotta add a thing that sets everything to false at the end
         keys[e.key.toLowerCase()] = false
     })
 
@@ -1150,7 +1216,7 @@
                 drawGame()
                 break
         }
-
+        releasedKeys = {}
         isMouseClicked = false
         requestAnimationFrame(gameLoop)
     }
@@ -1429,6 +1495,7 @@
         if (livesLostCount >= MAX_LIVES) {
             isGameOver = true
         }
+
     }
     //stop when paused, not when game over
     function updateText(dt) {
@@ -1445,17 +1512,10 @@
 
     function updateMenu() {
         // Check if the mouse is inside the button's boundaries
-        menuButton.isHovering =
-            mousePosition.x >= menuButton.x &&
-            mousePosition.x <= menuButton.x + menuButton.w &&
-            mousePosition.y >= menuButton.y &&
-            mousePosition.y <= menuButton.y + menuButton.h
-
-        // Start the game if the button is clicked
-        if (menuButton.isHovering && isMouseClicked) {
-            startGame()
-            currentScene = 'game'
-        }
+        menuButton.update()
+    }
+    function updateReset() {
+        
     }
 
     /* --- DISPLAY FUNCTIONS --- */
@@ -1598,26 +1658,7 @@
 
 
         // Button
-        const btnColor = menuButton.isHovering ? COLORS.WHITE : COLORS.WHITE_D
-        drawRoundRect(
-            menuButton.x,
-            menuButton.y,
-            menuButton.w,
-            menuButton.h,
-            10,
-            btnColor,
-        )
-
-        // Button text
-        ctx.fillStyle = COLORS.BLACK
-        ctx.font = '28px system-ui, sans-serif'
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.fillText(
-            'Start Game',
-            menuButton.x + menuButton.w / 2,
-            menuButton.y + menuButton.h / 2,
-        )
+        menuButton.display()
     }
 
     function pauseGame() {
