@@ -1219,13 +1219,21 @@
             case 'game':
                 if (!isPaused && !isGameOver) {
                     updateGame(dt)
+                    hotkey('r', considerReset)
                 }
                 if (!isPaused) {
                     updateText(dt)
                 }
+                if(!isGameOver){
+                    hotkey(32, togglePause)
+                } else{
+                    hotkey('r', reset)
+                }
                 drawGame()
                 break
             case 'maybeReset':
+                updateReset()
+                drawReset()
                 break
         }
         releasedKeys = {}
@@ -1527,7 +1535,8 @@
         menuButton.update()
     }
     function updateReset() {
-        
+        resumeButton.update()
+        resetButton.update()
     }
 
     /* --- DISPLAY FUNCTIONS --- */
@@ -1629,7 +1638,7 @@
             )
             ctx.font = '18px system-ui, sans-serif'
             ctx.fillText(
-                'Click Restart to play again.',
+                'Click Restart or press R to play again.',
                 VIRTUAL_WIDTH / 2,
                 VIRTUAL_HEIGHT / 2 + 55,
             )
@@ -1671,6 +1680,22 @@
 
         // Button
         menuButton.display()
+    }
+
+    function drawReset() {
+        // Background
+        ctx.fillStyle = COLORS.BLACK
+        ctx.fillRect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+
+        // Title
+        ctx.fillStyle = COLORS.WHITE_D
+        ctx.font = '60px system-ui, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.fillText('Confirm Reset?', VIRTUAL_WIDTH / 2, 200)
+
+        // Button
+        resumeButton.display()
+        resetButton.display()
     }
 
     function pauseGame() {
