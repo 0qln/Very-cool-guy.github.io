@@ -98,7 +98,7 @@
         BLOCKING_BLOCK_WEIGHT
 
     /* --- BUTTON --- */
-    function button(x, y, w, h, text, operation){
+    function button(x, y, w, h, text, operation, hotKey){
         this.x = x
         this.y = y
         this.w = w
@@ -106,6 +106,7 @@
         this.text = text
         this.operation = operation
         this.isHovering = false
+        this.key = hotKey
 
         this.update() = {
             // Check if the mouse is inside the button's boundaries
@@ -114,10 +115,16 @@
                 this.x <= this.x + this.w &&
                 this.y >= this.y &&
                 this.y <= this.y + this.h
+            if(this.key !== undefined && keys[this.key]){
+                this.isHovering = true
+            }
         
             // Start the game if the button is clicked
             if (this.isHovering && isMouseClicked) {
                 this.operation()
+            }
+            if(this.key !== undefined){
+                hotKey(this.key, this.operation)
             }
         }
         this.display() = {
@@ -147,9 +154,9 @@
 
     /* --- GAME STATE VARIABLES --- */
     // const menuButton = { x: 500, y: 350, w: 200, h: 60, isHovering: false }
-    let menuButton = new button(500, 350, 200, 60, 'Start Game', reset)
-    let resumeButton = new button(500 - 110, 350, 200, 60, 'Cancel', resume)
-    let resetButton = new button(500 + 110, 350, 200, 60, 'Restart', reset)
+    let menuButton = new button(500, 350, 200, 60, 'Start Game', reset, 32) //32 is the key code for space
+    let resumeButton = new button(500 - 110, 350, 200, 60, 'Cancel', resume, 32)
+    let resetButton = new button(500 + 110, 350, 200, 60, 'Restart', reset, 13) //13 is the key code for enter
     let currentScene = GAME_SCENE_NAME
     let livesLostCount = 0
     let currentScore = 0
@@ -182,6 +189,9 @@
         diamondPaddle.h = paddle.h
         diamondPaddle.bonus = INITIAL_DIAMOND_BONUS
         projectileTimer = 0
+    }
+    function considerReset() {
+        currentScene = 'maybeReset'
     }
     function reset(){
         startGame()
@@ -1215,6 +1225,8 @@
                 }
                 drawGame()
                 break
+            case 'maybeReset':
+                break
         }
         releasedKeys = {}
         isMouseClicked = false
@@ -1654,7 +1666,7 @@
             275,
         )
         ctx.textAlign = 'left'
-        ctx.fillText('Last updated: June 17, 2026', 20, VIRTUAL_HEIGHT - 30)
+        ctx.fillText('Last updated: June 23, 2026', 20, VIRTUAL_HEIGHT - 30)
 
 
         // Button
